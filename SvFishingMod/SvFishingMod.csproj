@@ -35,12 +35,15 @@
     <Reference Include="Microsoft.Xna.Framework.Game, Version=4.0.0.0, Culture=neutral, PublicKeyToken=842cf8be1de50553" />
     <Reference Include="Netcode">
       <HintPath>H:\GAMES\SteamLibrary\steamapps\common\Stardew Valley\Netcode.dll</HintPath>
+      <Private>False</Private>
     </Reference>
     <Reference Include="Stardew Valley">
       <HintPath>H:\GAMES\SteamLibrary\steamapps\common\Stardew Valley\Stardew Valley.exe</HintPath>
+      <Private>False</Private>
     </Reference>
     <Reference Include="StardewModdingAPI">
       <HintPath>H:\GAMES\SteamLibrary\steamapps\common\Stardew Valley\StardewModdingAPI.exe</HintPath>
+      <Private>False</Private>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -53,7 +56,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CircularBuffer.cs" />
     <Compile Include="FishingMod.cs" />
+    <Compile Include="FishingMod.reflected.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Settings.cs" />
   </ItemGroup>

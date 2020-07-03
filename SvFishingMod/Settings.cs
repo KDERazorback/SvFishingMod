@@ -17,7 +17,7 @@ namespace SvFishingMod
         {
             get
             {
-                if (_instance == null) _instance = LoadFromFile(Path.Combine(ModuleWorkingDirectory, "svfishmod.cfg"));
+                if (_instance == null) _instance = LoadFromFile();
 
                 return _instance;
             }
@@ -101,6 +101,13 @@ namespace SvFishingMod
             {
                 _overrideFishType = value;
             }
+        }
+
+        [DataMember] public bool ReelFishCycling { get; set; } = false;
+
+        public static Settings LoadFromFile()
+        {
+            return LoadFromFile(Path.Combine(ModuleWorkingDirectory, "svfishmod.cfg"));
         }
 
         public static Settings LoadFromFile(string filename)

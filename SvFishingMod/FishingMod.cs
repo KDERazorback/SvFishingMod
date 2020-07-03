@@ -7,206 +7,15 @@ using System.Collections.Generic;
 
 namespace SvFishingMod
 {
-    public class FishingMod : Mod
+    public sealed partial class FishingMod : Mod
     {
-        protected int bobberBarHeight // Hardcoded Max: 568
-        {
-            get
-            {
-                if (fishMenu == null) throw new NullReferenceException(nameof(fishMenu));
-                return Helper.Reflection.GetField<int>(fishMenu, nameof(bobberBarHeight), true).GetValue();
-            }
-            set
-            {
-                if (fishMenu == null) throw new NullReferenceException(nameof(fishMenu));
-                Helper.Reflection.GetField<int>(fishMenu, nameof(bobberBarHeight), true).SetValue(value);
-            }
-        }
+        private CircularBuffer<int> _circularFishList { get; set; } = null;
+        private SortedList<int, string> _fishList { get; set; } = null;
+        private BobberBar _fishMenu { get; set; }
+        private bool EnableDebugOutput { get; set; } = false;
+        private int FirstFishId { get; set; } = -1;
+        private int LastFishId { get; set; } = -1;
 
-        protected bool bossFish
-        {
-            get
-            {
-                if (fishMenu == null) throw new NullReferenceException(nameof(fishMenu));
-                return Helper.Reflection.GetField<bool>(fishMenu, nameof(bossFish), true).GetValue();
-            }
-            set
-            {
-                if (fishMenu == null) throw new NullReferenceException(nameof(fishMenu));
-                Helper.Reflection.GetField<bool>(fishMenu, nameof(bossFish), true).SetValue(value);
-            }
-        }
-
-        protected float difficulty
-        {
-            get
-            {
-                if (fishMenu == null) throw new NullReferenceException(nameof(fishMenu));
-                return Helper.Reflection.GetField<float>(fishMenu, nameof(difficulty), true).GetValue();
-            }
-            set
-            {
-                if (fishMenu == null) throw new NullReferenceException(nameof(fishMenu));
-                Helper.Reflection.GetField<float>(fishMenu, nameof(difficulty), true).SetValue(value);
-            }
-        }
-
-        protected float distanceFromCatching
-        {
-            get
-            {
-                if (fishMenu == null) throw new NullReferenceException(nameof(fishMenu));
-                return Helper.Reflection.GetField<float>(fishMenu, nameof(distanceFromCatching), true).GetValue();
-            }
-            set
-            {
-                if (fishMenu == null) throw new NullReferenceException(nameof(fishMenu));
-                Helper.Reflection.GetField<float>(fishMenu, nameof(distanceFromCatching), true).SetValue(value);
-            }
-        }
-
-        protected bool EnableDebugOutput { get; set; } = false;
-        protected bool fadeOut
-        {
-            get
-            {
-                if (fishMenu == null) throw new NullReferenceException(nameof(fishMenu));
-                return Helper.Reflection.GetField<bool>(fishMenu, nameof(fadeOut), true).GetValue();
-            }
-            set
-            {
-                if (fishMenu == null) throw new NullReferenceException(nameof(fishMenu));
-                Helper.Reflection.GetField<bool>(fishMenu, nameof(fadeOut), true).SetValue(value);
-            }
-        }
-
-        protected SortedDictionary<int, string> fishList { get; set; } = null;
-        protected BobberBar fishMenu { get; set; }
-        protected int fishQuality
-        {
-            get
-            {
-                if (fishMenu == null) throw new NullReferenceException(nameof(fishMenu));
-                return Helper.Reflection.GetField<int>(fishMenu, nameof(fishQuality), true).GetValue();
-            }
-            set
-            {
-                if (fishMenu == null) throw new NullReferenceException(nameof(fishMenu));
-                Helper.Reflection.GetField<int>(fishMenu, nameof(fishQuality), true).SetValue(value);
-            }
-        }
-
-        protected int fishSize
-        {
-            get
-            {
-                if (fishMenu == null) throw new NullReferenceException(nameof(fishMenu));
-                return Helper.Reflection.GetField<int>(fishMenu, nameof(fishSize), true).GetValue();
-            }
-            set
-            {
-                if (fishMenu == null) throw new NullReferenceException(nameof(fishMenu));
-                Helper.Reflection.GetField<int>(fishMenu, nameof(fishSize), true).SetValue(value);
-            }
-        }
-
-        protected bool fromFishPond
-        {
-            get
-            {
-                if (fishMenu == null) throw new NullReferenceException(nameof(fishMenu));
-                return Helper.Reflection.GetField<bool>(fishMenu, nameof(fromFishPond), true).GetValue();
-            }
-            set
-            {
-                if (fishMenu == null) throw new NullReferenceException(nameof(fishMenu));
-                Helper.Reflection.GetField<bool>(fishMenu, nameof(fromFishPond), true).SetValue(value);
-            }
-        }
-
-        protected bool handledFishResult
-        {
-            get
-            {
-                if (fishMenu == null) throw new NullReferenceException(nameof(fishMenu));
-                return Helper.Reflection.GetField<bool>(fishMenu, nameof(handledFishResult), true).GetValue();
-            }
-            set
-            {
-                if (fishMenu == null) throw new NullReferenceException(nameof(fishMenu));
-                Helper.Reflection.GetField<bool>(fishMenu, nameof(handledFishResult), true).SetValue(value);
-            }
-        }
-
-        protected int maxFishSize
-        {
-            get
-            {
-                if (fishMenu == null) throw new NullReferenceException(nameof(fishMenu));
-                return Helper.Reflection.GetField<int>(fishMenu, nameof(maxFishSize), true).GetValue();
-            }
-            set
-            {
-                if (fishMenu == null) throw new NullReferenceException(nameof(fishMenu));
-                Helper.Reflection.GetField<int>(fishMenu, nameof(maxFishSize), true).SetValue(value);
-            }
-        }
-
-        protected bool perfect
-        {
-            get
-            {
-                if (fishMenu == null) throw new NullReferenceException(nameof(fishMenu));
-                return Helper.Reflection.GetField<bool>(fishMenu, nameof(perfect), true).GetValue();
-            }
-            set
-            {
-                if (fishMenu == null) throw new NullReferenceException(nameof(fishMenu));
-                Helper.Reflection.GetField<bool>(fishMenu, nameof(perfect), true).SetValue(value);
-            }
-        }
-
-        protected bool treasure
-        {
-            get
-            {
-                if (fishMenu == null) throw new NullReferenceException(nameof(fishMenu));
-                return Helper.Reflection.GetField<bool>(fishMenu, nameof(treasure), true).GetValue();
-            }
-            set
-            {
-                if (fishMenu == null) throw new NullReferenceException(nameof(fishMenu));
-                Helper.Reflection.GetField<bool>(fishMenu, nameof(treasure), true).SetValue(value);
-            }
-        }
-
-        protected bool treasureCaught
-        {
-            get
-            {
-                if (fishMenu == null) throw new NullReferenceException(nameof(fishMenu));
-                return Helper.Reflection.GetField<bool>(fishMenu, nameof(treasureCaught), true).GetValue();
-            }
-            set
-            {
-                if (fishMenu == null) throw new NullReferenceException(nameof(fishMenu));
-                Helper.Reflection.GetField<bool>(fishMenu, nameof(treasureCaught), true).SetValue(value);
-            }
-        }
-
-        protected int whichFish
-        {
-            get
-            {
-                if (fishMenu == null) throw new NullReferenceException(nameof(fishMenu));
-                return Helper.Reflection.GetField<int>(fishMenu, nameof(whichFish), true).GetValue();
-            }
-            set
-            {
-                if (fishMenu == null) throw new NullReferenceException(nameof(fishMenu));
-                Helper.Reflection.GetField<int>(fishMenu, nameof(whichFish), true).SetValue(value);
-            }
-        }
         public override void Entry(IModHelper helper)
         {
             helper.Events.Display.MenuChanged += Display_MenuChanged;
@@ -216,6 +25,9 @@ namespace SvFishingMod
             helper.ConsoleCommands.Add("sv_fishing_reload", "Reloads from disk the configuration file used by the SvFishingMod.\nUsage: sv_fishing_reload", HandleCommand);
             helper.ConsoleCommands.Add("sv_fishing_search", "Searches the fish list for a fish that contains the specified string on its name.\nUsage: sv_fishing_search <keyword>", HandleCommand);
             helper.ConsoleCommands.Add("sv_fishing_setfish", "Forces the next fishing event to give a fish with the specified id.\nUsage: sv_fishing_setfish <fish_id>\nUse sv_fishing_search to get the id of a given fish by name.\nUse -1 as the fish id to restore original game functionality.", HandleCommand);
+            helper.ConsoleCommands.Add("sv_fishing_fishcycling", "Enables or disables the reeled fish cycling feature.\nUsage: sv_fishing_fishcycling 0|1\nWhen enabled, this feature will allow you to automatically reel all possibles fishes one after another each time you throw your fishrod.", HandleCommand);
+
+            Settings.Instance = Settings.LoadFromFile();
         }
 
         protected override void Dispose(bool disposing)
@@ -224,17 +36,61 @@ namespace SvFishingMod
             base.Dispose(disposing);
         }
 
-        protected string GetFishNameFromId(int id)
+        private void Display_MenuChanged(object sender, StardewModdingAPI.Events.MenuChangedEventArgs e)
         {
-            if (fishList == null) LoadFishList();
+            BobberBar fishBarMenu = e.NewMenu as BobberBar;
+            FishingRod fishTool = Game1.player.CurrentTool as FishingRod;
 
-            if (fishList.TryGetValue(id, out string name))
+            if (fishBarMenu == null || fishTool == null || Settings.Instance.DisableMod)
+                return;
+
+            _fishMenu = fishBarMenu;
+
+            int attachmentValue = fishTool.attachments[0] == null ? -1 : fishTool.attachments[0].parentSheetIndex;
+            bool caughtDouble = Settings.Instance.AlwaysCatchDoubleFish || (bossFish && attachmentValue == 774 && Game1.random.NextDouble() < 0.25 + Game1.player.DailyLuck / 2.0);
+
+            if (Settings.Instance.OverrideFishType >= 0) whichFish = Settings.Instance.OverrideFishType;
+            if (Settings.Instance.OverrideFishQuality >= 0) fishQuality = Settings.Instance.OverrideFishQuality;
+            if (Settings.Instance.AlwaysPerfectCatch) perfect = true;
+            if (Settings.Instance.AlwaysCatchTreasure)
+            {
+                treasure = true;
+                treasureCaught = true;
+            }
+            if (Settings.Instance.DistanceFromCatchingOverride >= 0) distanceFromCatching = Settings.Instance.DistanceFromCatchingOverride;
+            if (Settings.Instance.OverrideBarHeight >= 0) bobberBarHeight = Settings.Instance.OverrideBarHeight;
+            if (Settings.Instance.ReelFishCycling)
+            {
+                if (_circularFishList == null) LoadFishList();
+                whichFish = _circularFishList.ElementAt(0);
+                _circularFishList.Rotate(1);
+            }
+
+            if (Settings.Instance.AutoReelFish)
+            {
+                // Emulate BobberBar.update() when fadeOut = true
+                if (EnableDebugOutput) Monitor.Log(string.Format("Auto-reeling fish with id: {0}. : {1},", whichFish, GetFishNameFromId(whichFish)));
+                fadeOut = true;
+                handledFishResult = true;
+                distanceFromCatching = 1;
+                fishTool.pullFishFromWater(whichFish, fishSize, fishQuality, (int)difficulty, treasure, perfect, fromFishPond, caughtDouble);
+                Game1.exitActiveMenu();
+            }
+
+            Game1.setRichPresence("location", (object)Game1.currentLocation.Name);
+        }
+
+        private string GetFishNameFromId(int id)
+        {
+            if (_fishList == null) LoadFishList();
+
+            if (_fishList.TryGetValue(id, out string name))
                 return name;
 
             return "";
         }
 
-        protected void HandleCommand(string command, string[] args)
+        private void HandleCommand(string command, string[] args)
         {
             if (string.Equals(command, "sv_fishing_debug", StringComparison.OrdinalIgnoreCase))
             {
@@ -294,9 +150,9 @@ namespace SvFishingMod
 
             if (string.Equals(command, "sv_fishing_search", StringComparison.OrdinalIgnoreCase))
             {
-                if (fishList == null) LoadFishList();
+                if (_fishList == null) LoadFishList();
                 int matchCount = 0;
-                foreach (var fish in fishList)
+                foreach (var fish in _fishList)
                 {
                     foreach (string word in args)
                     {
@@ -325,58 +181,48 @@ namespace SvFishingMod
                 }
                 return;
             }
+
+            if (string.Equals(command, "sv_fishing_fishcycling", StringComparison.OrdinalIgnoreCase))
+            {
+                if (args != null && args.Length > 0)
+                {
+                    if (string.Equals(args[0].Trim(), "1", StringComparison.Ordinal))
+                    {
+                        Settings.Instance.ReelFishCycling = true;
+                    }
+                    else if (string.Equals(args[0].Trim(), "0", StringComparison.Ordinal))
+                    {
+                        Settings.Instance.ReelFishCycling = false;
+                    }
+                }
+                return;
+            }
         }
 
-        protected void LoadFishList()
+        private void LoadFishList()
         {
-            fishList = new SortedDictionary<int, string>();
+            if (_fishList != null)
+                _fishList.Clear();
+            else
+                _fishList = new SortedList<int, string>();
+
             var fishData = Game1.content.Load<Dictionary<int, string>>("Data\\Fish");
+            _circularFishList = new CircularBuffer<int>(fishData.Count);
             foreach (var fish in fishData)
             {
                 string[] segments = fish.Value.Split('/');
                 string name = segments[0] + '/' + segments[segments.Length - 1];
-                fishList.Add(fish.Key, name);
+                _fishList.Add(fish.Key, name);
+
+                if (FirstFishId == -1 || fish.Key < FirstFishId)
+                    FirstFishId = fish.Key;
+                if (LastFishId == -1 || fish.Key > LastFishId)
+                    LastFishId = fish.Key;
+
+                _circularFishList.Insert(fish.Key);
             }
 
-            if (EnableDebugOutput) Monitor.Log(string.Format("Loaded {0} fishes from internal content database.", fishList.Count));
-        }
-
-        private void Display_MenuChanged(object sender, StardewModdingAPI.Events.MenuChangedEventArgs e)
-        {
-            BobberBar fishBarMenu = e.NewMenu as BobberBar;
-            FishingRod fishTool = Game1.player.CurrentTool as FishingRod;
-
-            if (fishBarMenu == null || fishTool == null || Settings.Instance.DisableMod)
-                return;
-
-            fishMenu = fishBarMenu;
-
-            int attachmentValue = fishTool.attachments[0] == null ? -1 : fishTool.attachments[0].parentSheetIndex;
-            bool caughtDouble = Settings.Instance.AlwaysCatchDoubleFish || (bossFish && attachmentValue == 774 && Game1.random.NextDouble() < 0.25 + Game1.player.DailyLuck / 2.0);
-
-            if (Settings.Instance.OverrideFishType >= 0) whichFish = Settings.Instance.OverrideFishType;
-            if (Settings.Instance.OverrideFishQuality >= 0) fishQuality = Settings.Instance.OverrideFishQuality;
-            if (Settings.Instance.AlwaysPerfectCatch) perfect = true;
-            if (Settings.Instance.AlwaysCatchTreasure)
-            {
-                treasure = true;
-                treasureCaught = true;
-            }
-            if (Settings.Instance.DistanceFromCatchingOverride >= 0) distanceFromCatching = Settings.Instance.DistanceFromCatchingOverride;
-            if (Settings.Instance.OverrideBarHeight >= 0) bobberBarHeight = Settings.Instance.OverrideBarHeight;
-
-            if (Settings.Instance.AutoReelFish)
-            {
-                // Emulate BobberBar.update() when fadeOut = true
-                if (EnableDebugOutput) Monitor.Log(string.Format("Auto-reeling fish with id: {0}. : {1},", whichFish, GetFishNameFromId(whichFish)));
-                fadeOut = true;
-                handledFishResult = true;
-                distanceFromCatching = 1;
-                fishTool.pullFishFromWater(whichFish, fishSize, fishQuality, (int)difficulty, treasure, perfect, fromFishPond, caughtDouble);
-                Game1.exitActiveMenu();
-            }
-
-            Game1.setRichPresence("location", (object)Game1.currentLocation.Name);
+            if (EnableDebugOutput) Monitor.Log(string.Format("Loaded {0} fishes from internal content database.", _fishList.Count));
         }
     }
 }
