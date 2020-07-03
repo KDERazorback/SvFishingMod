@@ -72,8 +72,8 @@ namespace SvFishingMod
         {
             get
             {
-                if (_overrideFishQuality > 2)
-                    return 2;
+                if (_overrideFishQuality > 4)
+                    return 4;
                 if (_overrideFishQuality < 0)
                     return -1;
 
