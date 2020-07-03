@@ -219,7 +219,7 @@ namespace SvFishingMod
                 if (LastFishId == -1 || fish.Key > LastFishId)
                     LastFishId = fish.Key;
 
-                _circularFishList.Insert(fish.Key);
+                _circularFishList.InsertBackwards(fish.Key);
             }
 
             if (EnableDebugOutput) Monitor.Log(string.Format("Loaded {0} fishes from internal content database.", _fishList.Count));
