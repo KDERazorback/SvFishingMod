@@ -1,5 +1,5 @@
 # SvFishingMod
-Small and simple **StardewValley Mod** which allows user customization of the Fishing mechanics included in the game, including features like *difficulty, rewards and condition tweaks*, as well as *auto-reeling* the hooked fish and overriding fish types regardless of the area where the player is located.
+Small and simple **StardewValley Mod** which allows user customization of the Fishing mechanics included in the game, with features like *difficulty, rewards and condition tweaks*, as well as *auto-reeling* the hooked fish and overriding fish types regardless of the area where the player is located.
 
 # Requirements
 - StardewValley v1.4.5 or greater.

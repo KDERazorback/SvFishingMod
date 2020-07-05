@@ -4,6 +4,7 @@ using StardewValley.Menus;
 using StardewValley.Tools;
 using System;
 using System.Collections.Generic;
+using System.IO;
 
 namespace SvFishingMod
 {
@@ -27,7 +28,18 @@ namespace SvFishingMod
             helper.ConsoleCommands.Add("sv_fishing_setfish", "Forces the next fishing event to give a fish with the specified id.\nUsage: sv_fishing_setfish <fish_id>\nUse sv_fishing_search to get the id of a given fish by name.\nUse -1 as the fish id to restore original game functionality.", HandleCommand);
             helper.ConsoleCommands.Add("sv_fishing_fishcycling", "Enables or disables the reeled fish cycling feature.\nUsage: sv_fishing_fishcycling 0|1\nWhen enabled, this feature will allow you to automatically reel all possibles fishes one after another each time you throw your fishrod.", HandleCommand);
 
-            Settings.Instance = Settings.LoadFromFile();
+            string modDirectory = helper.DirectoryPath; // SMAPI Directory retrieval
+            if (string.IsNullOrWhiteSpace(modDirectory))
+            {
+                Monitor.Log("Cannot locate mod configuration file svfishmod.cfg. Failed to get mod installation directory. Using default settings...", LogLevel.Warn);
+                Settings.ConfigFilePath = null;
+                Settings.Instance = new Settings();
+            }
+            else
+            {
+                Settings.ConfigFilePath = Path.Combine(modDirectory, "svfishmod.cfg");
+                Settings.Instance = Settings.LoadFromFile();
+            }
         }
 
         protected override void Dispose(bool disposing)

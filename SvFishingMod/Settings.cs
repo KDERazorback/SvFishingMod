@@ -1,6 +1,8 @@
-﻿using System.IO;
-using System.Reflection;
+﻿using System;
+using System.Diagnostics;
+using System.IO;
 using System.Runtime.Serialization;
+using System.Xml;
 
 namespace SvFishingMod
 {
@@ -8,36 +10,29 @@ namespace SvFishingMod
     public class Settings
     {
         private static Settings _instance = null;
-        private static string _moduleWorkingDirectory = null;
         private float _distanceFromCatchingOverride = -1;
         private int _overrideFishQuality = -1;
         private int _overrideFishType = -1;
+
+        public static string ConfigFilePath { get; set; } = null;
 
         public static Settings Instance
         {
             get
             {
-                if (_instance == null) _instance = LoadFromFile();
+                if (_instance == null)
+                {
+                    if (string.IsNullOrWhiteSpace(ConfigFilePath))
+                        _instance = new Settings();
+                    else
+                        _instance = LoadFromFile(ConfigFilePath);
+                }
 
                 return _instance;
             }
             set
             {
                 _instance = value;
-            }
-        }
-
-        public static string ModuleWorkingDirectory
-        {
-            get
-            {
-                if (string.IsNullOrWhiteSpace(_moduleWorkingDirectory))
-                {
-                    FileInfo fi = new FileInfo(Assembly.GetAssembly(typeof(Settings)).Location);
-                    _moduleWorkingDirectory = fi.Directory.FullName;
-                }
-
-                return _moduleWorkingDirectory;
             }
         }
 
@@ -107,14 +102,24 @@ namespace SvFishingMod
 
         public static Settings LoadFromFile()
         {
-            return LoadFromFile(Path.Combine(ModuleWorkingDirectory, "svfishmod.cfg"));
+            if (string.IsNullOrWhiteSpace(ConfigFilePath))
+                return new Settings(); // Use Default settings
+
+            return LoadFromFile(ConfigFilePath);
         }
 
         public static Settings LoadFromFile(string filename)
         {
             FileInfo fi = new FileInfo(filename);
+            
             if (!fi.Exists)
             {
+                if (!fi.Directory.Exists)
+                {
+                    fi.Directory.Create();
+                    fi.Refresh();
+                }
+
                 Settings def = new Settings(); // Default settings
                 def.SaveToFile(fi.FullName);
                 return def;
@@ -123,8 +128,17 @@ namespace SvFishingMod
             {
                 DataContractSerializer ser = new DataContractSerializer(typeof(Settings));
                 Settings output = null;
-                using (FileStream fs = new FileStream(fi.FullName, FileMode.Open, FileAccess.Read, FileShare.Read))
-                    output = ser.ReadObject(fs) as Settings;
+
+                try
+                {
+                    using (FileStream fs = new FileStream(fi.FullName, FileMode.Open, FileAccess.Read, FileShare.Read))
+                        output = ser.ReadObject(fs) as Settings;
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine(string.Format("[SvFishingMod] Unable to load settings from specified filename {0}", filename, ex.GetType().Name, ex.Message));
+                    output = new Settings(); // Load defaults
+                }
 
                 return output;
             }
@@ -138,7 +152,12 @@ namespace SvFishingMod
 
             DataContractSerializer ser = new DataContractSerializer(typeof(Settings));
             using (FileStream fs = new FileStream(fi.FullName, FileMode.Create, FileAccess.Write, FileShare.None))
-                ser.WriteObject(fs, this);
+            using (XmlWriter writer = XmlWriter.Create(fs, new XmlWriterSettings() { Indent = true }))
+            {
+                ser.WriteObject(writer, this);
+                writer.Flush();
+                fs.Flush();
+            }
         }
     }
 }
