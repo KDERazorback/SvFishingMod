@@ -1,4 +1,5 @@
-﻿using System;
+﻿using StardewModdingAPI;
+using System;
 using System.Diagnostics;
 using System.IO;
 using System.Runtime.Serialization;
@@ -15,6 +16,8 @@ namespace SvFishingMod
         private int _overrideFishType = -1;
 
         public static string ConfigFilePath { get; set; } = null;
+        public static IModHelper HelperInstance { get; set; } = null;
+        public static IMonitor MonitorInstance { get; set; } = null;
 
         public static Settings Instance
         {
@@ -61,6 +64,7 @@ namespace SvFishingMod
         }
 
         [DataMember] public int OverrideBarHeight { get; set; } = -1;
+        [DataMember] public bool RemoveBiteDelay { get; set; } = false;
 
         [DataMember]
         public int OverrideFishQuality
@@ -102,62 +106,45 @@ namespace SvFishingMod
 
         public static Settings LoadFromFile()
         {
-            if (string.IsNullOrWhiteSpace(ConfigFilePath))
-                return new Settings(); // Use Default settings
+            if (HelperInstance == null)
+                throw new NullReferenceException("No SMAPI Mod Helper defined before loading settings file.");
 
             return LoadFromFile(ConfigFilePath);
         }
 
         public static Settings LoadFromFile(string filename)
         {
-            FileInfo fi = new FileInfo(filename);
-            
-            if (!fi.Exists)
+            Settings output;
+
+            try
             {
-                if (!fi.Directory.Exists)
-                {
-                    fi.Directory.Create();
-                    fi.Refresh();
-                }
-
-                Settings def = new Settings(); // Default settings
-                def.SaveToFile(fi.FullName);
-                return def;
+                output = HelperInstance.Data.ReadJsonFile<Settings>(ConfigFilePath);
+                if (output == null)
+                    output = new Settings();
+                output.SaveToFile(filename);
+                MonitorInstance.Log(string.Format("Settings loaded using SMAPI from {0}", filename), LogLevel.Trace);
             }
-            else
+            catch (Exception ex)
             {
-                DataContractSerializer ser = new DataContractSerializer(typeof(Settings));
-                Settings output = null;
-
-                try
-                {
-                    using (FileStream fs = new FileStream(fi.FullName, FileMode.Open, FileAccess.Read, FileShare.Read))
-                        output = ser.ReadObject(fs) as Settings;
-                }
-                catch (Exception ex)
-                {
-                    Debug.WriteLine(string.Format("[SvFishingMod] Unable to load settings from specified filename {0}", filename, ex.GetType().Name, ex.Message));
-                    output = new Settings(); // Load defaults
-                }
-
-                return output;
+                if (MonitorInstance != null)
+                    MonitorInstance.Log(string.Format("[SvFishingMod] Unable to load settings from specified filename {0}", filename, ex.GetType().Name, ex.Message), LogLevel.Error);
+                output = new Settings(); // Load defaults
             }
+
+            return output;
+        }
+
+        public void SaveToFile()
+        {
+            SaveToFile(ConfigFilePath);
         }
 
         public void SaveToFile(string filename)
         {
-            FileInfo fi = new FileInfo(filename);
-            if (!fi.Directory.Exists)
-                fi.Directory.Create();
+            if (HelperInstance == null)
+                throw new NullReferenceException("No SMAPI Mod Helper defined before saving settings file.");
 
-            DataContractSerializer ser = new DataContractSerializer(typeof(Settings));
-            using (FileStream fs = new FileStream(fi.FullName, FileMode.Create, FileAccess.Write, FileShare.None))
-            using (XmlWriter writer = XmlWriter.Create(fs, new XmlWriterSettings() { Indent = true }))
-            {
-                ser.WriteObject(writer, this);
-                writer.Flush();
-                fs.Flush();
-            }
+            HelperInstance.Data.WriteJsonFile<Settings>(filename, this);
         }
     }
 }

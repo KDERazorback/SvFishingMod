@@ -5,11 +5,15 @@ using StardewValley.Tools;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Reflection;
 
 namespace SvFishingMod
 {
     public sealed partial class FishingMod : Mod
     {
+        private static int defaultMaxFishingBiteTime = -1;
+        private static int defaultMinFishingBiteTime = -1;
+
         private CircularBuffer<int> _circularFishList { get; set; } = null;
         private SortedList<int, string> _fishList { get; set; } = null;
         private BobberBar _fishMenu { get; set; }
@@ -19,7 +23,13 @@ namespace SvFishingMod
 
         public override void Entry(IModHelper helper)
         {
+            Settings.HelperInstance = helper;
+            Settings.MonitorInstance = Monitor;
+            Settings.ConfigFilePath = "svfishmod.json";
+            Settings.LoadFromFile();
+
             helper.Events.Display.MenuChanged += Display_MenuChanged;
+            helper.Events.Input.ButtonPressed += Input_ButtonPressed;
             helper.ConsoleCommands.Add("sv_fishing_debug", "Enables or disables Debug mode on the SvFishingMod.\nUsage: sv_fishing_debug 0|1", HandleCommand);
             helper.ConsoleCommands.Add("sv_fishing_enabled", "Enables or disables SvFishingMod.\nUsage: sv_fishing_enabled 0|1", HandleCommand);
             helper.ConsoleCommands.Add("sv_fishing_autoreel", "Enables or disables the Auto reel functionality of the SvFishingMod.\nUsage: sv_fishing_autoreel 0|1.", HandleCommand);
@@ -27,18 +37,28 @@ namespace SvFishingMod
             helper.ConsoleCommands.Add("sv_fishing_search", "Searches the fish list for a fish that contains the specified string on its name.\nUsage: sv_fishing_search <keyword>", HandleCommand);
             helper.ConsoleCommands.Add("sv_fishing_setfish", "Forces the next fishing event to give a fish with the specified id.\nUsage: sv_fishing_setfish <fish_id>\nUse sv_fishing_search to get the id of a given fish by name.\nUse -1 as the fish id to restore original game functionality.", HandleCommand);
             helper.ConsoleCommands.Add("sv_fishing_fishcycling", "Enables or disables the reeled fish cycling feature.\nUsage: sv_fishing_fishcycling 0|1\nWhen enabled, this feature will allow you to automatically reel all possibles fishes one after another each time you throw your fishrod.", HandleCommand);
+            helper.ConsoleCommands.Add("sv_fishing_bitedelay", "Enables or disables the bite delay for fishes once the rod has been casted into the water.\nUsage: sv_fishing_bitedelay 0|1\nIf the value is 1, the original game mechanics will be used and the fish will bite after a random amount of time.", HandleCommand);
 
-            string modDirectory = helper.DirectoryPath; // SMAPI Directory retrieval
-            if (string.IsNullOrWhiteSpace(modDirectory))
+            defaultMaxFishingBiteTime = maxFishingBiteTime;
+            defaultMinFishingBiteTime = minFishingBiteTime;
+        }
+
+        private void Input_ButtonPressed(object sender, StardewModdingAPI.Events.ButtonPressedEventArgs e)
+        {
+            FishingRod rod = Game1.player.CurrentTool as FishingRod;
+
+            if (rod == null)
+                return;
+
+            if (Settings.Instance.RemoveBiteDelay)
             {
-                Monitor.Log("Cannot locate mod configuration file svfishmod.cfg. Failed to get mod installation directory. Using default settings...", LogLevel.Warn);
-                Settings.ConfigFilePath = null;
-                Settings.Instance = new Settings();
-            }
+                minFishingBiteTime = -20000;
+                maxFishingBiteTime = 1;
+            }    
             else
             {
-                Settings.ConfigFilePath = Path.Combine(modDirectory, "svfishmod.cfg");
-                Settings.Instance = Settings.LoadFromFile();
+                minFishingBiteTime = defaultMinFishingBiteTime;
+                maxFishingBiteTime = defaultMaxFishingBiteTime;
             }
         }
 
@@ -109,13 +129,9 @@ namespace SvFishingMod
                 if (args != null && args.Length > 0)
                 {
                     if (string.Equals(args[0].Trim(), "1", StringComparison.Ordinal))
-                    {
                         EnableDebugOutput = true;
-                    }
                     else if (string.Equals(args[0].Trim(), "0", StringComparison.Ordinal))
-                    {
                         EnableDebugOutput = false;
-                    }
                 }
                 return;
             }
@@ -125,13 +141,9 @@ namespace SvFishingMod
                 if (args != null && args.Length > 0)
                 {
                     if (string.Equals(args[0].Trim(), "1", StringComparison.Ordinal))
-                    {
                         Settings.Instance.DisableMod = false;
-                    }
                     else if (string.Equals(args[0].Trim(), "0", StringComparison.Ordinal))
-                    {
                         Settings.Instance.DisableMod = true;
-                    }
                 }
                 return;
             }
@@ -141,13 +153,9 @@ namespace SvFishingMod
                 if (args != null && args.Length > 0)
                 {
                     if (string.Equals(args[0].Trim(), "1", StringComparison.Ordinal))
-                    {
                         Settings.Instance.AutoReelFish = true;
-                    }
                     else if (string.Equals(args[0].Trim(), "0", StringComparison.Ordinal))
-                    {
                         Settings.Instance.AutoReelFish = false;
-                    }
                 }
                 return;
             }
@@ -199,13 +207,21 @@ namespace SvFishingMod
                 if (args != null && args.Length > 0)
                 {
                     if (string.Equals(args[0].Trim(), "1", StringComparison.Ordinal))
-                    {
                         Settings.Instance.ReelFishCycling = true;
-                    }
                     else if (string.Equals(args[0].Trim(), "0", StringComparison.Ordinal))
-                    {
                         Settings.Instance.ReelFishCycling = false;
-                    }
+                }
+                return;
+            }
+
+            if (string.Equals(command, "sv_fishing_bitedelay", StringComparison.OrdinalIgnoreCase))
+            {
+                if (args != null && args.Length > 0)
+                {
+                    if (string.Equals(args[0].Trim(), "1", StringComparison.Ordinal))
+                        Settings.Instance.RemoveBiteDelay = false;
+                    else if (string.Equals(args[0].Trim(), "0", StringComparison.Ordinal))
+                        Settings.Instance.RemoveBiteDelay = true;
                 }
                 return;
             }

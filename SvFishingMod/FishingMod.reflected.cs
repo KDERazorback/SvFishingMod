@@ -1,10 +1,15 @@
 ﻿using StardewModdingAPI;
+using StardewValley.Tools;
 using System;
 
 namespace SvFishingMod
 {
     public sealed partial class FishingMod : Mod
     {
+        private IReflectedField<int> maxFishingBiteTimeField = null;
+
+        private IReflectedField<int> minFishingBiteTimeField = null;
+
         private int bobberBarHeight // Hardcoded Max: 568
         {
             get
@@ -32,7 +37,6 @@ namespace SvFishingMod
                 Helper.Reflection.GetField<bool>(_fishMenu, nameof(bossFish), true).SetValue(value);
             }
         }
-
         private float difficulty
         {
             get
@@ -131,6 +135,24 @@ namespace SvFishingMod
             }
         }
 
+        private int maxFishingBiteTime
+        {
+            get
+            {
+                if (maxFishingBiteTimeField == null)
+                    maxFishingBiteTimeField = Helper.Reflection.GetField<int>(typeof(FishingRod), nameof(maxFishingBiteTime), true);
+
+                return maxFishingBiteTimeField.GetValue();
+            }
+            set
+            {
+                if (maxFishingBiteTimeField == null)
+                    maxFishingBiteTimeField = Helper.Reflection.GetField<int>(typeof(FishingRod), nameof(maxFishingBiteTime), true);
+
+                maxFishingBiteTimeField.SetValue(value);
+            }
+        }
+
         private int maxFishSize
         {
             get
@@ -145,6 +167,23 @@ namespace SvFishingMod
             }
         }
 
+        private int minFishingBiteTime
+        {
+            get
+            {
+                if (minFishingBiteTimeField == null)
+                    minFishingBiteTimeField = Helper.Reflection.GetField<int>(typeof(FishingRod), nameof(minFishingBiteTime), true);
+
+                return minFishingBiteTimeField.GetValue();
+            }
+            set
+            {
+                if (minFishingBiteTimeField == null)
+                    minFishingBiteTimeField = Helper.Reflection.GetField<int>(typeof(FishingRod), nameof(minFishingBiteTime), true);
+
+                minFishingBiteTimeField.SetValue(value);
+            }
+        }
         private bool perfect
         {
             get

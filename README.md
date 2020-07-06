@@ -152,6 +152,13 @@ Enables or disables the mod globally. See "DisableMod" configuration entry for m
 Enables or disables the Auto reel functionality. See "AutoReelFish" configuration entry for more details.
 ```
 
+## sv_fishing_bitedelay
+**Possible values:** `0 | 1`
+
+```
+Enables or disables the bite delay for fishes once the rod has been casted into the water. A value of 1 means that fishes will bite as soon as the hook touches the water, a value of 0 will restore the original game functionality.
+```
+
 ## sv_fishing_reload
 
 ```
