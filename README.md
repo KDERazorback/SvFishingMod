@@ -9,9 +9,7 @@ Small and simple **StardewValley Mod** which allows user customization of the Fi
 The mod could work on previous versions, but it was not tested. Your mileage may vary.
 ```
 
-```
-As of Dec21, this mod appears to be compatible with *StardewValley v1.5.0*, and the new features appears to be working seamlessly. Please backup your saves before installing (just-in-case) and feel free to open a bug report if you found any issue.
-```
+Note: As of Dec21, this mod appears to be compatible with **StardewValley v1.5.0**, and the new features appears to be working seamlessly. Please backup your saves before installing (just-in-case) and feel free to open a bug report if you found any issue.
 
 # Downloads
 For mod downloads, please refer to the following sections.
