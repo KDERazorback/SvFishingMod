@@ -1,9 +1,7 @@
-﻿using System;
-
-namespace SvFishingMod
+﻿namespace SvFishingMod
 {
     /*  Circular Buffer Generic Implementation
-     *  By KDERazorback (http://twitter.com/kderazorback)
+     *  By KDERazorback
      *  
      *   Fast and Lightweight, Generic Circular Buffer Implementation, supports for bidirectional rotations and Resize operations
      *   Free to use or modify! Just keep me on the comments!
@@ -31,10 +29,7 @@ namespace SvFishingMod
         /// <summary>
         /// Stores the current Capacity of this Buffer
         /// </summary>
-        public int Capacity
-        {
-            get { return _plainBuffer.Length; }
-        }
+        public int Capacity => _plainBuffer.Length;
 
         /// <summary>
         /// Returns the item that is stored on the specified Index inside the Circular Buffer
@@ -69,14 +64,8 @@ namespace SvFishingMod
 
         public T this[int index]
         {
-            get
-            {
-                return ElementAt(index);
-            }
-            set
-            {
-                UpdateElementAt(index, value);
-            }
+            get => ElementAt(index);
+            set => UpdateElementAt(index, value);
         }
 
         /// <summary>

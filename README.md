@@ -2,14 +2,14 @@
 Small and simple **StardewValley Mod** which allows user customization of the Fishing mechanics included in the game, with features like *difficulty, rewards and condition tweaks*, as well as *auto-reeling* the hooked fish and overriding fish types regardless of the area where the player is located.
 
 # Requirements
-- StardewValley v1.4.5 or greater.
-- SMAPI v3.6.1 or greater.
+- StardewValley v1.6.14 or greater.
+- SMAPI v4.1.7 or greater.
 
 ```
 The mod could work on previous versions, but it was not tested. Your mileage may vary.
 ```
 
-Note: As of Dec21, this mod appears to be compatible with **StardewValley v1.5.0**, and the new features appears to be working seamlessly. Please backup your saves before installing (just-in-case) and feel free to open a bug report if you found any issue.
+Note: As of Nov 2024, this mod appears to be compatible with **StardewValley v1.6.14**, and the new features appears to be working seamlessly. Please backup your saves before installing (just-in-case) and feel free to open a bug report if you found any issue.
 
 # Downloads
 For mod downloads, please refer to the following sections.
@@ -211,7 +211,7 @@ Before every fish name, you will see its internal ID which can be used with the 
 ```
 Forces the next reeled-out fishes to always give the a fish with the specified internal ID. Use the "sv_fishing_search" command to get the internal ID of a fish from its name.
 
-A value of "-1" restores the original Game functionality and gives the player a fish based on the usual Game conditions.
+A value of "-1" or "0" restores the original Game functionality and gives the player a fish based on the usual Game conditions.
 ```
 
 ## sv_fishing_status

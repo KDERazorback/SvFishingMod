@@ -2,27 +2,21 @@
 using StardewValley;
 using StardewValley.Menus;
 using StardewValley.Tools;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Threading;
 
 namespace SvFishingMod
 {
     public sealed partial class FishingMod : Mod
     {
-        private static int defaultMaxFishingBiteTime = -1;
-        private static int defaultMinFishingBiteTime = -1;
-        public const string MultiplayerSettingsMessageType = "EnforcedSessionSettings";
+        private static int _defaultMaxFishingBiteTime = -1;
+        private static int _defaultMinFishingBiteTime = -1;
+        private const string MultiplayerSettingsMessageType = "EnforcedSessionSettings";
 
-        private CircularBuffer<int> _circularFishList { get; set; } = null;
-        private SortedList<int, string> _fishList { get; set; } = null;
-        private BobberBar _fishMenu { get; set; }
+        private CircularBuffer<string>? CircularFishList { get; set; } = null;
+        private SortedList<string, string>? FishList { get; set; } = null;
+        private BobberBar? FishMenu { get; set; } = null;
         private bool EnableDebugOutput { get; set; } = false;
-        private int FirstFishId { get; set; } = -1;
-        private int LastFishId { get; set; } = -1;
-        private ISemanticVersion CurrentVersion { get; set; } = null;
-        private string CurrentModId { get; set; } = null;
+        private ISemanticVersion? CurrentVersion { get; set; } = null;
+        private string CurrentModId { get; set; } = String.Empty;
 
         public override void Entry(IModHelper helper)
         {
@@ -31,7 +25,7 @@ namespace SvFishingMod
             Settings.ConfigFilePath = "svfishmod.json";
             Settings.LoadFromFile();
 
-            CurrentVersion = helper.ModRegistry.Get(helper.ModRegistry.ModID).Manifest.Version;
+            CurrentVersion = helper.ModRegistry.Get(helper.ModRegistry.ModID)?.Manifest.Version;
             CurrentModId = helper.ModRegistry.ModID;
 
             helper.Events.Display.MenuChanged += Display_MenuChanged;
@@ -46,16 +40,16 @@ namespace SvFishingMod
             helper.ConsoleCommands.Add("sv_fishing_autoreel", "Enables or disables the Auto reel functionality of the SvFishingMod.\nUsage: sv_fishing_autoreel 0|1.", HandleCommand);
             helper.ConsoleCommands.Add("sv_fishing_reload", "Reloads from disk the configuration file used by the SvFishingMod.\nUsage: sv_fishing_reload", HandleCommand);
             helper.ConsoleCommands.Add("sv_fishing_search", "Searches the fish list for a fish that contains the specified string on its name.\nUsage: sv_fishing_search <keyword>", HandleCommand);
-            helper.ConsoleCommands.Add("sv_fishing_setfish", "Forces the next fishing event to give a fish with the specified id.\nUsage: sv_fishing_setfish <fish_id>\nUse sv_fishing_search to get the id of a given fish by name.\nUse -1 as the fish id to restore original game functionality.", HandleCommand);
+            helper.ConsoleCommands.Add("sv_fishing_setfish", "Forces the next fishing event to give a fish with the specified id.\nUsage: sv_fishing_setfish <fish_id>\nUse sv_fishing_search to get the id of a given fish by name.\nUse -1 or 0 as the fish id to restore original game functionality.", HandleCommand);
             helper.ConsoleCommands.Add("sv_fishing_fishcycling", "Enables or disables the reeled fish cycling feature.\nUsage: sv_fishing_fishcycling 0|1\nWhen enabled, this feature will allow you to automatically reel all possibles fishes one after another each time you throw your fishrod.", HandleCommand);
             helper.ConsoleCommands.Add("sv_fishing_bitedelay", "Enables or disables the bite delay for fishes once the rod has been casted into the water.\nUsage: sv_fishing_bitedelay 0|1\nIf the value is 1, the original game mechanics will be used and the fish will bite after a random amount of time.", HandleCommand);
             helper.ConsoleCommands.Add("sv_fishing_status", "Displays the current mod status, including synced data from the host in multiplayer sessions.\nUsage: sv_fishing_status\nThis command doesnt accept any parameters.", HandleCommand);
 
-            defaultMaxFishingBiteTime = maxFishingBiteTime;
-            defaultMinFishingBiteTime = minFishingBiteTime;
+            _defaultMaxFishingBiteTime = maxFishingBiteTime;
+            _defaultMinFishingBiteTime = minFishingBiteTime;
         }
 
-        private void Multiplayer_PeerConnected(object sender, StardewModdingAPI.Events.PeerConnectedEventArgs e)
+        private void Multiplayer_PeerConnected(object? sender, StardewModdingAPI.Events.PeerConnectedEventArgs e)
         {
             if (!e.Peer.IsHost)
             {
@@ -72,12 +66,12 @@ namespace SvFishingMod
             }
         }
 
-        private void Multiplayer_ModMessageReceived(object sender, StardewModdingAPI.Events.ModMessageReceivedEventArgs e)
+        private void Multiplayer_ModMessageReceived(object? sender, StardewModdingAPI.Events.ModMessageReceivedEventArgs e)
         {
             if (!string.Equals(e.FromModID, CurrentModId, StringComparison.OrdinalIgnoreCase))
                 return;
 
-            ISemanticVersion ver = Helper.Multiplayer.GetConnectedPlayer(e.FromPlayerID)?.GetMod(CurrentModId)?.Version ?? null;
+            ISemanticVersion? ver = Helper.Multiplayer.GetConnectedPlayer(e.FromPlayerID)?.GetMod(CurrentModId)?.Version ?? null;
             bool compatible = ver?.IsNewerThan(CurrentVersion) ?? false;
 
             if (!compatible)
@@ -100,11 +94,8 @@ namespace SvFishingMod
                             {
                                 Settings data = e.ReadAs<Settings>();
 
-                                if (data != null)
-                                {
-                                    Settings.Remote = data;
-                                    Monitor.Log(string.Format("Remote settings updated from server. FarmerId: {0}.", e.FromPlayerID));
-                                }
+                                Settings.Remote = data;
+                                Monitor.Log(string.Format("Remote settings updated from server. FarmerId: {0}.", e.FromPlayerID));
                             }
                             catch (Exception ex)
                             {
@@ -128,7 +119,7 @@ namespace SvFishingMod
             Monitor.Log(string.Format("Remote mod message received from an unknown farmer. PlayerId: {0}. Type: {1}", e.FromPlayerID, e.Type));
         }
 
-        private void GameLoop_SaveLoaded(object sender, StardewModdingAPI.Events.SaveLoadedEventArgs e)
+        private void GameLoop_SaveLoaded(object? sender, StardewModdingAPI.Events.SaveLoadedEventArgs e)
         {
             Settings.Remote = null;
             if (Game1.multiplayerMode == 0)
@@ -143,16 +134,16 @@ namespace SvFishingMod
             }
         }
 
-        private void GameLoop_ReturnedToTitle(object sender, StardewModdingAPI.Events.ReturnedToTitleEventArgs e)
+        private void GameLoop_ReturnedToTitle(object? sender, StardewModdingAPI.Events.ReturnedToTitleEventArgs e)
         {
             Settings.Remote = null;
         }
 
-        private void Input_ButtonPressed(object sender, StardewModdingAPI.Events.ButtonPressedEventArgs e)
+        private void Input_ButtonPressed(object? sender, StardewModdingAPI.Events.ButtonPressedEventArgs e)
         {
-            FishingRod rod = Game1.player.CurrentTool as FishingRod;
+            FishingRod? rod = Game1.player.CurrentTool as FishingRod;
 
-            if (rod == null)
+            if (rod is null)
                 return;
 
             if (Settings.Active.RemoveBiteDelay)
@@ -162,8 +153,8 @@ namespace SvFishingMod
             }    
             else
             {
-                minFishingBiteTime = defaultMinFishingBiteTime;
-                maxFishingBiteTime = defaultMaxFishingBiteTime;
+                minFishingBiteTime = _defaultMinFishingBiteTime;
+                maxFishingBiteTime = _defaultMaxFishingBiteTime;
             }
         }
 
@@ -173,20 +164,21 @@ namespace SvFishingMod
             base.Dispose(disposing);
         }
 
-        private void Display_MenuChanged(object sender, StardewModdingAPI.Events.MenuChangedEventArgs e)
+        private void Display_MenuChanged(object? sender, StardewModdingAPI.Events.MenuChangedEventArgs e)
         {
-            BobberBar fishBarMenu = e.NewMenu as BobberBar;
-            FishingRod fishTool = Game1.player.CurrentTool as FishingRod;
+            BobberBar? fishBarMenu = e.NewMenu as BobberBar;
+            FishingRod? fishTool = Game1.player.CurrentTool as FishingRod;
 
-            if (fishBarMenu == null || fishTool == null || Settings.Active.DisableMod)
+            if (fishBarMenu is null || fishTool is null || Settings.Active.DisableMod)
                 return;
 
-            _fishMenu = fishBarMenu;
+            FishMenu = fishBarMenu;
 
-            int attachmentValue = fishTool.attachments[0] == null ? -1 : fishTool.attachments[0].parentSheetIndex;
+            int attachmentValue = fishTool.attachments[0]?.parentSheetIndex.Value ?? -1;
             bool caughtDouble = Settings.Active.AlwaysCatchDoubleFish || (bossFish && attachmentValue == 774 && Game1.random.NextDouble() < 0.25 + Game1.player.DailyLuck / 2.0);
+            string setMailFlag = String.Empty;
 
-            if (Settings.Active.OverrideFishType >= 0) whichFish = Settings.Active.OverrideFishType;
+            if (!string.IsNullOrWhiteSpace(Settings.Active.OverrideFishType)) whichFish = Settings.Active.OverrideFishType;
             if (Settings.Active.OverrideFishQuality >= 0) fishQuality = Settings.Active.OverrideFishQuality;
             if (Settings.Active.AlwaysPerfectCatch) perfect = true;
             if (Settings.Active.AlwaysCatchTreasure)
@@ -198,9 +190,10 @@ namespace SvFishingMod
             if (Settings.Active.OverrideBarHeight >= 0) bobberBarHeight = Settings.Active.OverrideBarHeight;
             if (Settings.Active.ReelFishCycling)
             {
-                if (_circularFishList == null) LoadFishList();
-                whichFish = _circularFishList.ElementAt(0);
-                _circularFishList.Rotate(1);
+                if (CircularFishList is null) LoadFishList();
+                if (CircularFishList is null) throw new NullReferenceException("Cannot load fish list.");
+                whichFish = CircularFishList.ElementAt(0);
+                CircularFishList.Rotate(1);
             }
 
             if (Settings.Active.AutoReelFish)
@@ -210,18 +203,18 @@ namespace SvFishingMod
                 fadeOut = true;
                 handledFishResult = true;
                 distanceFromCatching = 1;
-                fishTool.pullFishFromWater(whichFish, fishSize, fishQuality, (int)difficulty, treasure, perfect, fromFishPond, caughtDouble);
+                fishTool.pullFishFromWater(whichFish, fishSize, fishQuality, (int)difficulty, treasure, perfect, fromFishPond, setMailFlag, bossFish, caughtDouble ? 2 : 1);
                 Game1.exitActiveMenu();
             }
 
-            Game1.setRichPresence("location", (object)Game1.currentLocation.Name);
+            Game1.setRichPresence("location", Game1.currentLocation.Name);
         }
 
-        private string GetFishNameFromId(int id)
+        private string GetFishNameFromId(string id)
         {
-            if (_fishList == null) LoadFishList();
+            if (FishList is null) LoadFishList();
 
-            if (_fishList.TryGetValue(id, out string name))
+            if (FishList?.TryGetValue(id, out string? name) ?? false)
                 return name;
 
             return "";
@@ -231,7 +224,7 @@ namespace SvFishingMod
         {
             if (string.Equals(command, "sv_fishing_debug", StringComparison.OrdinalIgnoreCase))
             {
-                if (args != null && args.Length > 0)
+                if (args.Length > 0)
                 {
                     if (string.Equals(args[0].Trim(), "1", StringComparison.Ordinal))
                         EnableDebugOutput = true;
@@ -243,7 +236,7 @@ namespace SvFishingMod
 
             if (string.Equals(command, "sv_fishing_enabled", StringComparison.OrdinalIgnoreCase))
             {
-                if (args != null && args.Length > 0)
+                if (args.Length > 0)
                 {
                     if (string.Equals(args[0].Trim(), "1", StringComparison.Ordinal))
                         Settings.Local.DisableMod = false;
@@ -255,7 +248,7 @@ namespace SvFishingMod
 
             if (string.Equals(command, "sv_fishing_autoreel", StringComparison.OrdinalIgnoreCase))
             {
-                if (args != null && args.Length > 0)
+                if (args.Length > 0)
                 {
                     if (string.Equals(args[0].Trim(), "1", StringComparison.Ordinal))
                         Settings.Local.AutoReelFish = true;
@@ -268,16 +261,17 @@ namespace SvFishingMod
             if (string.Equals(command, "sv_fishing_reload", StringComparison.OrdinalIgnoreCase))
             {
                 Game1.playSound("jingle1");
-                Settings.Local = null;
+                Settings.ClearLocalSettings();
                 Monitor.Log("Successfully reloaded SvFishingMod settings from disk.", LogLevel.Info);
                 return;
             }
 
             if (string.Equals(command, "sv_fishing_search", StringComparison.OrdinalIgnoreCase))
             {
-                if (_fishList == null) LoadFishList();
+                if (FishList is null) LoadFishList();
+                if (FishList is null) throw new NullReferenceException("Cannot load fish list.");
                 int matchCount = 0;
-                foreach (var fish in _fishList)
+                foreach (var fish in FishList)
                 {
                     foreach (string word in args)
                     {
@@ -294,22 +288,26 @@ namespace SvFishingMod
 
             if (string.Equals(command, "sv_fishing_setfish", StringComparison.OrdinalIgnoreCase))
             {
-                if (args != null && args.Length > 0)
+                if (args.Length > 0)
                 {
-                    if (int.TryParse(args[0].Trim(), out int fishId))
+                    var fishId = args[0].Trim();
+                    if (fishId is "0" or "-1")
+                    {
+                        Settings.Local.OverrideFishType = String.Empty;
+                        Monitor.Log("Done. The next fish will be a random one.", LogLevel.Info);
+                    }
+                    else
                     {
                         Settings.Local.OverrideFishType = fishId;
                         Monitor.Log(string.Format("Done. The next reeled fish will be {0}: {1}.", fishId, GetFishNameFromId(fishId)), LogLevel.Info);
                     }
-                    else
-                        Monitor.Log("Invalid fish id specified.", LogLevel.Info);
                 }
                 return;
             }
 
             if (string.Equals(command, "sv_fishing_fishcycling", StringComparison.OrdinalIgnoreCase))
             {
-                if (args != null && args.Length > 0)
+                if (args.Length > 0)
                 {
                     if (string.Equals(args[0].Trim(), "1", StringComparison.Ordinal))
                         Settings.Local.ReelFishCycling = true;
@@ -321,7 +319,7 @@ namespace SvFishingMod
 
             if (string.Equals(command, "sv_fishing_bitedelay", StringComparison.OrdinalIgnoreCase))
             {
-                if (args != null && args.Length > 0)
+                if (args.Length > 0)
                 {
                     if (string.Equals(args[0].Trim(), "1", StringComparison.Ordinal))
                         Settings.Local.RemoveBiteDelay = false;
@@ -333,46 +331,43 @@ namespace SvFishingMod
 
             if (string.Equals(command, "sv_fishing_status", StringComparison.OrdinalIgnoreCase))
             {
-                if (EnableDebugOutput)
-                {
-                    Monitor.Log("SvFishingMod V. " + ModManifest.Version, LogLevel.Info);
-                    Monitor.Log("\tTime: " + DateTime.Now.ToString(), LogLevel.Info);
-                    Monitor.Log("\tIs Multiplayer Session: " + (Settings.IsMultiplayerSession ? "YES" : "NO"), LogLevel.Info);
-                    Monitor.Log("\tIs Server Mode: " + (Settings.IsServer? "YES" : "NO"), LogLevel.Info);
-                    Monitor.Log("\tRemote Settings Received: " + (Settings.RemoteSettingsSet ? "YES" : "NO"), LogLevel.Info);
-                    Monitor.Log("\tLocal Config File Path: " + Settings.ConfigFilePath, LogLevel.Info);
-                    Monitor.Log("\tActive Settings: " + (Settings.Active == Settings.Local ? "LOCAL" : "REMOTE"), LogLevel.Info);
-                    if (Settings.IsServer)
-                        Monitor.Log("\tEnforce Multiplayer Settings: " + (Settings.Local.EnforceMultiplayerSettings ? "YES" : "NO"), LogLevel.Info);
-                }
+                Monitor.Log("SvFishingMod V. " + ModManifest.Version, LogLevel.Info);
+                Monitor.Log("\tTime: " + DateTime.Now, LogLevel.Info);
+                Monitor.Log("\tIs Multiplayer Session: " + (Settings.IsMultiplayerSession ? "YES" : "NO"), LogLevel.Info);
+                Monitor.Log("\tIs Server Mode: " + (Settings.IsServer? "YES" : "NO"), LogLevel.Info);
+                Monitor.Log("\tRemote Settings Received: " + (Settings.RemoteSettingsSet ? "YES" : "NO"), LogLevel.Info);
+                Monitor.Log("\tLocal Config File Path: " + Settings.ConfigFilePath, LogLevel.Info);
+                Monitor.Log("\tActive Settings: " + (Settings.Active == Settings.Local ? "LOCAL" : "REMOTE"), LogLevel.Info);
+                if (Settings.IsServer)
+                    Monitor.Log("\tEnforce Multiplayer Settings: " + (Settings.Local.EnforceMultiplayerSettings ? "YES" : "NO"), LogLevel.Info);
                 return;
             }
         }
 
         private void LoadFishList()
         {
-            if (_fishList != null)
-                _fishList.Clear();
+            if (FishList is not null)
+                FishList.Clear();
             else
-                _fishList = new SortedList<int, string>();
+                FishList = new SortedList<string, string>();
 
-            var fishData = Game1.content.Load<Dictionary<int, string>>("Data\\Fish");
-            _circularFishList = new CircularBuffer<int>(fishData.Count);
+            var fishData = Game1.content.Load<Dictionary<string, string>>("Data\\Fish");
+            CircularFishList = new CircularBuffer<string>(fishData.Count);
             foreach (var fish in fishData)
             {
                 string[] segments = fish.Value.Split('/');
                 string name = segments[0] + '/' + segments[segments.Length - 1];
-                _fishList.Add(fish.Key, name);
+                FishList.Add(fish.Key, name);
 
-                if (FirstFishId == -1 || fish.Key < FirstFishId)
-                    FirstFishId = fish.Key;
-                if (LastFishId == -1 || fish.Key > LastFishId)
-                    LastFishId = fish.Key;
+                // if (FirstFishId == -1 || fish.Key < FirstFishId)
+                //     FirstFishId = fish.Key;
+                // if (LastFishId == -1 || fish.Key > LastFishId)
+                //     LastFishId = fish.Key;
 
-                _circularFishList.InsertBackwards(fish.Key);
+                CircularFishList.InsertBackwards(fish.Key);
             }
 
-            if (EnableDebugOutput) Monitor.Log(string.Format("Loaded {0} fishes from internal content database.", _fishList.Count));
+            if (EnableDebugOutput) Monitor.Log(string.Format("Loaded {0} fishes from internal content database.", FishList.Count));
         }
     }
 }

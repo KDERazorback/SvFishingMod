@@ -1,5 +1,4 @@
 ﻿using StardewModdingAPI;
-using System;
 using System.Diagnostics;
 using System.Runtime.Serialization;
 
@@ -8,12 +7,12 @@ namespace SvFishingMod
     [DataContract]
     public class Settings
     {
-        private static Settings _localInstance = null;
-        private static Settings _remoteInstance = null;
-        private static Stopwatch _remoteInstanceTimer = null;
+        private static Settings? _localInstance = null;
+        private static Settings? _remoteInstance = null;
+        private static Stopwatch? _remoteInstanceTimer = null;
         private float _distanceFromCatchingOverride = -1;
         private int _overrideFishQuality = -1;
-        private int _overrideFishType = -1;
+        private string _overrideFishType = String.Empty;
         private static bool _remoteSettingsSet = false;
         private static bool _isMultiplayerSession = false;
         private static bool _isServer = false;
@@ -47,15 +46,12 @@ namespace SvFishingMod
             }
         }
 
-        public static string ConfigFilePath { get; set; } = null;
-        public static IModHelper HelperInstance { get; set; } = null;
-        public static IMonitor MonitorInstance { get; set; } = null;
+        public static string ConfigFilePath { get; set; } = String.Empty;
+        public static IModHelper? HelperInstance { get; set; } = null;
+        public static IMonitor? MonitorInstance { get; set; } = null;
         public static bool RemoteSettingsSet
         {
-            get
-            {
-                return _remoteSettingsSet;
-            }
+            get => _remoteSettingsSet;
             private set
             {
                 if (value)
@@ -75,13 +71,10 @@ namespace SvFishingMod
 
         public static bool IsMultiplayerSession
         {
-            get
-            {
-                return _isMultiplayerSession;
-            }
+            get => _isMultiplayerSession;
             set
             {
-                MonitorInstance.Log(string.Format("IsMultiplayerSession property changed to {0}", value));
+                MonitorInstance?.Log(string.Format("IsMultiplayerSession property changed to {0}", value));
                 _isMultiplayerSession = value;
             }
         }
@@ -92,7 +85,7 @@ namespace SvFishingMod
             {
                 if (!IsMultiplayerSession || IsServer) return Local;
 
-                if (Remote.EnforceMultiplayerSettings) return Remote;
+                if (Remote?.EnforceMultiplayerSettings ?? false) return Remote;
 
                 return Local;
             }
@@ -100,13 +93,10 @@ namespace SvFishingMod
 
         public static bool IsServer
         {
-            get
-            {
-                return _isServer;
-            }
+            get => _isServer;
             set
             {
-                MonitorInstance.Log(string.Format("IsServer property changed to {0}", value));
+                MonitorInstance?.Log(string.Format("IsServer property changed to {0}", value));
                 _isServer = value;
             }
         }
@@ -126,13 +116,10 @@ namespace SvFishingMod
 
                 return _localInstance;
             }
-            set
-            {
-                _localInstance = value;
-            }
+            set => _localInstance = value;
         }
 
-        public static Settings Remote
+        public static Settings? Remote
         {
             get
             {
@@ -145,9 +132,9 @@ namespace SvFishingMod
                 if (!RemoteSettingsSet)
                 {
                     int timeout = 20000;
-                    if (_remoteInstanceTimer.ElapsedMilliseconds > timeout)
+                    if (_remoteInstanceTimer?.ElapsedMilliseconds > timeout)
                     {
-                        MonitorInstance.Log(string.Format("Remote server settings not received after {0}ms. Enabling the usage of local settings for the local farmer.", timeout));
+                        MonitorInstance?.Log(string.Format("Remote server settings not received after {0}ms. Enabling the usage of local settings for the local farmer.", timeout));
                         Remote = Local;
                     }
                 }
@@ -179,10 +166,7 @@ namespace SvFishingMod
 
                 return _distanceFromCatchingOverride;
             }
-            set
-            {
-                _distanceFromCatchingOverride = value;
-            }
+            set => _distanceFromCatchingOverride = value;
         }
 
         [DataMember] public int OverrideBarHeight { get; set; } = -1;
@@ -200,28 +184,22 @@ namespace SvFishingMod
 
                 return _overrideFishQuality;
             }
-            set
-            {
-                _overrideFishQuality = value;
-            }
+            set => _overrideFishQuality = value;
         }
 
         [DataMember]
-        public int OverrideFishType
+        public string OverrideFishType
         {
             get
             {
-                if (_overrideFishType == -1)
-                    return -1;
-                if (_overrideFishType < 128)
-                    return 128;
+                if (string.IsNullOrWhiteSpace(_overrideFishType))
+                    return String.Empty;
+                // if (_overrideFishType < 128)
+                //     return 128;
 
                 return _overrideFishType;
             }
-            set
-            {
-                _overrideFishType = value;
-            }
+            set => _overrideFishType = value;
         }
 
         [DataMember] public bool ReelFishCycling { get; set; } = false;
@@ -238,24 +216,28 @@ namespace SvFishingMod
 
         public static Settings LoadFromFile(string filename)
         {
-            Settings output;
+            Settings? output;
 
             try
             {
-                output = HelperInstance.Data.ReadJsonFile<Settings>(ConfigFilePath);
-                if (output == null)
+                output = HelperInstance?.Data.ReadJsonFile<Settings>(ConfigFilePath);
+                if (output is null)
                     output = new Settings();
                 output.SaveToFile(filename);
-                MonitorInstance.Log(string.Format("Settings loaded using SMAPI from {0}", filename), LogLevel.Trace);
+                MonitorInstance?.Log(string.Format("Settings loaded using SMAPI from {0}", filename));
             }
             catch (Exception ex)
             {
-                if (MonitorInstance != null)
-                    MonitorInstance.Log(string.Format("[SvFishingMod] Unable to load settings from specified filename {0}", filename, ex.GetType().Name, ex.Message), LogLevel.Error);
+                MonitorInstance?.Log(string.Format("[SvFishingMod] Unable to load settings from specified filename {0}", filename), LogLevel.Error);
                 output = new Settings(); // Load defaults
             }
 
             return output;
+        }
+
+        public static void ClearLocalSettings()
+        {
+            _localInstance = null;
         }
 
         public void SaveToFile()
@@ -268,7 +250,7 @@ namespace SvFishingMod
             if (HelperInstance == null)
                 throw new NullReferenceException("No SMAPI Mod Helper defined before saving settings file.");
 
-            HelperInstance.Data.WriteJsonFile<Settings>(filename, this);
+            HelperInstance.Data.WriteJsonFile(filename, this);
         }
     }
 }

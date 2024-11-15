@@ -1,26 +1,25 @@
 ﻿using StardewModdingAPI;
 using StardewValley.Tools;
-using System;
 
 namespace SvFishingMod
 {
     public sealed partial class FishingMod : Mod
     {
-        private IReflectedField<int> maxFishingBiteTimeField = null;
+        private IReflectedField<int>? maxFishingBiteTimeField = null;
 
-        private IReflectedField<int> minFishingBiteTimeField = null;
+        private IReflectedField<int>? minFishingBiteTimeField = null;
 
         private int bobberBarHeight // Hardcoded Max: 568
         {
             get
             {
-                if (_fishMenu == null) throw new NullReferenceException(nameof(_fishMenu));
-                return Helper.Reflection.GetField<int>(_fishMenu, nameof(bobberBarHeight), true).GetValue();
+                if (FishMenu == null) throw new NullReferenceException(nameof(FishMenu));
+                return Helper.Reflection.GetField<int>(FishMenu, nameof(bobberBarHeight), true).GetValue();
             }
             set
             {
-                if (_fishMenu == null) throw new NullReferenceException(nameof(_fishMenu));
-                Helper.Reflection.GetField<int>(_fishMenu, nameof(bobberBarHeight), true).SetValue(value);
+                if (FishMenu == null) throw new NullReferenceException(nameof(FishMenu));
+                Helper.Reflection.GetField<int>(FishMenu, nameof(bobberBarHeight), true).SetValue(value);
             }
         }
 
@@ -28,26 +27,26 @@ namespace SvFishingMod
         {
             get
             {
-                if (_fishMenu == null) throw new NullReferenceException(nameof(_fishMenu));
-                return Helper.Reflection.GetField<bool>(_fishMenu, nameof(bossFish), true).GetValue();
+                if (FishMenu == null) throw new NullReferenceException(nameof(FishMenu));
+                return Helper.Reflection.GetField<bool>(FishMenu, nameof(bossFish), true).GetValue();
             }
             set
             {
-                if (_fishMenu == null) throw new NullReferenceException(nameof(_fishMenu));
-                Helper.Reflection.GetField<bool>(_fishMenu, nameof(bossFish), true).SetValue(value);
+                if (FishMenu == null) throw new NullReferenceException(nameof(FishMenu));
+                Helper.Reflection.GetField<bool>(FishMenu, nameof(bossFish), true).SetValue(value);
             }
         }
         private float difficulty
         {
             get
             {
-                if (_fishMenu == null) throw new NullReferenceException(nameof(_fishMenu));
-                return Helper.Reflection.GetField<float>(_fishMenu, nameof(difficulty), true).GetValue();
+                if (FishMenu == null) throw new NullReferenceException(nameof(FishMenu));
+                return Helper.Reflection.GetField<float>(FishMenu, nameof(difficulty), true).GetValue();
             }
             set
             {
-                if (_fishMenu == null) throw new NullReferenceException(nameof(_fishMenu));
-                Helper.Reflection.GetField<float>(_fishMenu, nameof(difficulty), true).SetValue(value);
+                if (FishMenu == null) throw new NullReferenceException(nameof(FishMenu));
+                Helper.Reflection.GetField<float>(FishMenu, nameof(difficulty), true).SetValue(value);
             }
         }
 
@@ -55,13 +54,13 @@ namespace SvFishingMod
         {
             get
             {
-                if (_fishMenu == null) throw new NullReferenceException(nameof(_fishMenu));
-                return Helper.Reflection.GetField<float>(_fishMenu, nameof(distanceFromCatching), true).GetValue();
+                if (FishMenu == null) throw new NullReferenceException(nameof(FishMenu));
+                return Helper.Reflection.GetField<float>(FishMenu, nameof(distanceFromCatching), true).GetValue();
             }
             set
             {
-                if (_fishMenu == null) throw new NullReferenceException(nameof(_fishMenu));
-                Helper.Reflection.GetField<float>(_fishMenu, nameof(distanceFromCatching), true).SetValue(value);
+                if (FishMenu == null) throw new NullReferenceException(nameof(FishMenu));
+                Helper.Reflection.GetField<float>(FishMenu, nameof(distanceFromCatching), true).SetValue(value);
             }
         }
 
@@ -69,13 +68,13 @@ namespace SvFishingMod
         {
             get
             {
-                if (_fishMenu == null) throw new NullReferenceException(nameof(_fishMenu));
-                return Helper.Reflection.GetField<bool>(_fishMenu, nameof(fadeOut), true).GetValue();
+                if (FishMenu == null) throw new NullReferenceException(nameof(FishMenu));
+                return Helper.Reflection.GetField<bool>(FishMenu, nameof(fadeOut), true).GetValue();
             }
             set
             {
-                if (_fishMenu == null) throw new NullReferenceException(nameof(_fishMenu));
-                Helper.Reflection.GetField<bool>(_fishMenu, nameof(fadeOut), true).SetValue(value);
+                if (FishMenu == null) throw new NullReferenceException(nameof(FishMenu));
+                Helper.Reflection.GetField<bool>(FishMenu, nameof(fadeOut), true).SetValue(value);
             }
         }
 
@@ -83,13 +82,13 @@ namespace SvFishingMod
         {
             get
             {
-                if (_fishMenu == null) throw new NullReferenceException(nameof(_fishMenu));
-                return Helper.Reflection.GetField<int>(_fishMenu, nameof(fishQuality), true).GetValue();
+                if (FishMenu == null) throw new NullReferenceException(nameof(FishMenu));
+                return Helper.Reflection.GetField<int>(FishMenu, nameof(fishQuality), true).GetValue();
             }
             set
             {
-                if (_fishMenu == null) throw new NullReferenceException(nameof(_fishMenu));
-                Helper.Reflection.GetField<int>(_fishMenu, nameof(fishQuality), true).SetValue(value);
+                if (FishMenu == null) throw new NullReferenceException(nameof(FishMenu));
+                Helper.Reflection.GetField<int>(FishMenu, nameof(fishQuality), true).SetValue(value);
             }
         }
 
@@ -97,13 +96,13 @@ namespace SvFishingMod
         {
             get
             {
-                if (_fishMenu == null) throw new NullReferenceException(nameof(_fishMenu));
-                return Helper.Reflection.GetField<int>(_fishMenu, nameof(fishSize), true).GetValue();
+                if (FishMenu == null) throw new NullReferenceException(nameof(FishMenu));
+                return Helper.Reflection.GetField<int>(FishMenu, nameof(fishSize), true).GetValue();
             }
             set
             {
-                if (_fishMenu == null) throw new NullReferenceException(nameof(_fishMenu));
-                Helper.Reflection.GetField<int>(_fishMenu, nameof(fishSize), true).SetValue(value);
+                if (FishMenu == null) throw new NullReferenceException(nameof(FishMenu));
+                Helper.Reflection.GetField<int>(FishMenu, nameof(fishSize), true).SetValue(value);
             }
         }
 
@@ -111,13 +110,13 @@ namespace SvFishingMod
         {
             get
             {
-                if (_fishMenu == null) throw new NullReferenceException(nameof(_fishMenu));
-                return Helper.Reflection.GetField<bool>(_fishMenu, nameof(fromFishPond), true).GetValue();
+                if (FishMenu == null) throw new NullReferenceException(nameof(FishMenu));
+                return Helper.Reflection.GetField<bool>(FishMenu, nameof(fromFishPond), true).GetValue();
             }
             set
             {
-                if (_fishMenu == null) throw new NullReferenceException(nameof(_fishMenu));
-                Helper.Reflection.GetField<bool>(_fishMenu, nameof(fromFishPond), true).SetValue(value);
+                if (FishMenu == null) throw new NullReferenceException(nameof(FishMenu));
+                Helper.Reflection.GetField<bool>(FishMenu, nameof(fromFishPond), true).SetValue(value);
             }
         }
 
@@ -125,13 +124,13 @@ namespace SvFishingMod
         {
             get
             {
-                if (_fishMenu == null) throw new NullReferenceException(nameof(_fishMenu));
-                return Helper.Reflection.GetField<bool>(_fishMenu, nameof(handledFishResult), true).GetValue();
+                if (FishMenu == null) throw new NullReferenceException(nameof(FishMenu));
+                return Helper.Reflection.GetField<bool>(FishMenu, nameof(handledFishResult), true).GetValue();
             }
             set
             {
-                if (_fishMenu == null) throw new NullReferenceException(nameof(_fishMenu));
-                Helper.Reflection.GetField<bool>(_fishMenu, nameof(handledFishResult), true).SetValue(value);
+                if (FishMenu == null) throw new NullReferenceException(nameof(FishMenu));
+                Helper.Reflection.GetField<bool>(FishMenu, nameof(handledFishResult), true).SetValue(value);
             }
         }
 
@@ -157,13 +156,13 @@ namespace SvFishingMod
         {
             get
             {
-                if (_fishMenu == null) throw new NullReferenceException(nameof(_fishMenu));
-                return Helper.Reflection.GetField<int>(_fishMenu, nameof(maxFishSize), true).GetValue();
+                if (FishMenu == null) throw new NullReferenceException(nameof(FishMenu));
+                return Helper.Reflection.GetField<int>(FishMenu, nameof(maxFishSize), true).GetValue();
             }
             set
             {
-                if (_fishMenu == null) throw new NullReferenceException(nameof(_fishMenu));
-                Helper.Reflection.GetField<int>(_fishMenu, nameof(maxFishSize), true).SetValue(value);
+                if (FishMenu == null) throw new NullReferenceException(nameof(FishMenu));
+                Helper.Reflection.GetField<int>(FishMenu, nameof(maxFishSize), true).SetValue(value);
             }
         }
 
@@ -188,13 +187,13 @@ namespace SvFishingMod
         {
             get
             {
-                if (_fishMenu == null) throw new NullReferenceException(nameof(_fishMenu));
-                return Helper.Reflection.GetField<bool>(_fishMenu, nameof(perfect), true).GetValue();
+                if (FishMenu == null) throw new NullReferenceException(nameof(FishMenu));
+                return Helper.Reflection.GetField<bool>(FishMenu, nameof(perfect), true).GetValue();
             }
             set
             {
-                if (_fishMenu == null) throw new NullReferenceException(nameof(_fishMenu));
-                Helper.Reflection.GetField<bool>(_fishMenu, nameof(perfect), true).SetValue(value);
+                if (FishMenu == null) throw new NullReferenceException(nameof(FishMenu));
+                Helper.Reflection.GetField<bool>(FishMenu, nameof(perfect), true).SetValue(value);
             }
         }
 
@@ -202,13 +201,13 @@ namespace SvFishingMod
         {
             get
             {
-                if (_fishMenu == null) throw new NullReferenceException(nameof(_fishMenu));
-                return Helper.Reflection.GetField<bool>(_fishMenu, nameof(treasure), true).GetValue();
+                if (FishMenu == null) throw new NullReferenceException(nameof(FishMenu));
+                return Helper.Reflection.GetField<bool>(FishMenu, nameof(treasure), true).GetValue();
             }
             set
             {
-                if (_fishMenu == null) throw new NullReferenceException(nameof(_fishMenu));
-                Helper.Reflection.GetField<bool>(_fishMenu, nameof(treasure), true).SetValue(value);
+                if (FishMenu == null) throw new NullReferenceException(nameof(FishMenu));
+                Helper.Reflection.GetField<bool>(FishMenu, nameof(treasure), true).SetValue(value);
             }
         }
 
@@ -216,27 +215,27 @@ namespace SvFishingMod
         {
             get
             {
-                if (_fishMenu == null) throw new NullReferenceException(nameof(_fishMenu));
-                return Helper.Reflection.GetField<bool>(_fishMenu, nameof(treasureCaught), true).GetValue();
+                if (FishMenu == null) throw new NullReferenceException(nameof(FishMenu));
+                return Helper.Reflection.GetField<bool>(FishMenu, nameof(treasureCaught), true).GetValue();
             }
             set
             {
-                if (_fishMenu == null) throw new NullReferenceException(nameof(_fishMenu));
-                Helper.Reflection.GetField<bool>(_fishMenu, nameof(treasureCaught), true).SetValue(value);
+                if (FishMenu == null) throw new NullReferenceException(nameof(FishMenu));
+                Helper.Reflection.GetField<bool>(FishMenu, nameof(treasureCaught), true).SetValue(value);
             }
         }
 
-        private int whichFish
+        private string whichFish
         {
             get
             {
-                if (_fishMenu == null) throw new NullReferenceException(nameof(_fishMenu));
-                return Helper.Reflection.GetField<int>(_fishMenu, nameof(whichFish), true).GetValue();
+                if (FishMenu == null) throw new NullReferenceException(nameof(FishMenu));
+                return Helper.Reflection.GetField<string>(FishMenu, nameof(whichFish), true).GetValue();
             }
             set
             {
-                if (_fishMenu == null) throw new NullReferenceException(nameof(_fishMenu));
-                Helper.Reflection.GetField<int>(_fishMenu, nameof(whichFish), true).SetValue(value);
+                if (FishMenu == null) throw new NullReferenceException(nameof(FishMenu));
+                Helper.Reflection.GetField<string>(FishMenu, nameof(whichFish), true).SetValue(value);
             }
         }
     }
